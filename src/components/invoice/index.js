@@ -158,7 +158,7 @@ export class Invoice extends Component {
     pdf.canvas.height = 72 * 11;
     pdf.canvas.width = 72 * 8.5;
     pdf.fromHTML(InvoicePattern(invoice));
-    pdf.save("mybillbook-" + invoice.personName + "-" + invoice.invoiceNumber);
+    pdf.save("The-Invoicer-" + invoice.personName + "-" + invoice.invoiceNumber);
   };
 }
 
