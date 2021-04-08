@@ -9,39 +9,27 @@ export class AddProduct extends Component {
     amount: 0
   };
 
-  onChange = (text, id) => {
-    let amount =
-      this.state.amount === "" ? 0 : parseFloat(this.state.amount).toFixed(2);
-    let quantity =
-      this.state.quantity === ""
-        ? 0
-        : parseFloat(this.state.quantity).toFixed(2);
-    let price =
-      this.state.price === "" ? 0 : parseFloat(this.state.price).toFixed(2);
-    let tax = this.state.tax === "" ? 0 : parseFloat(this.state.tax).toFixed(2);
-    if (id === "price") {
-      amount =
-        parseFloat(quantity).toFixed(2) *
-        parseFloat(text === "" ? 0 : text).toFixed(2);
-      let textamount = (amount * parseFloat(tax)).toFixed(2) / 100;
-      amount = amount - parseFloat(textamount).toFixed(2);
-    }
-    if (id === "quantity") {
-      amount =
-        parseFloat(price).toFixed(2) *
-        parseFloat(text === "" ? 0 : text).toFixed(2);
-      let textamount = (amount * parseFloat(tax)).toFixed(2) / 100;
-      amount = amount - parseFloat(textamount).toFixed(2);
-    }
-    if (id === "tax") {
-      amount = parseFloat(price).toFixed(2) * parseFloat(quantity).toFixed(2);
-      let textamount =
-        (amount * parseFloat(text === "" ? 0 : text)).toFixed(2) / 100;
-      amount = amount - parseFloat(textamount).toFixed(2);
-    }
+  calculateAmount = () => {
+    let {
+      price,
+      quantity,
+      tax,
+    } = this.state
 
-    this.setState({ [id]: text, amount });
-  };
+    quantity = quantity === "" ? 0 : parseFloat(quantity).toFixed(2);
+    price = price === "" ? 0 : parseFloat(price).toFixed(2);
+    tax = tax === "" ? 0 : parseFloat(tax).toFixed(2);
+
+    let amount = price * quantity
+    const taxAmount = amount * tax / 100
+
+    amount += taxAmount
+    amount = amount.toFixed(2)
+
+    this.setState({ amount })
+  }
+
+  onChange = (text, id) => this.setState({ [id]: text }, this.calculateAmount)
 
   showSnackBar(msg) {
     var snackbarContainer = document.querySelector("#demo-toast-example");

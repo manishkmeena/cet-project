@@ -23,7 +23,7 @@ export class ProductRow extends Component {
           /> */}
         </td>
         <td className="mdl-data-table__cell--non-numeric">
-          {this.props.product.price}
+          ₹{this.props.product.price}
           {/* <input
             className="mdl-textfield__input "
             type="number"
@@ -32,7 +32,7 @@ export class ProductRow extends Component {
           /> */}
         </td>
         <td className="mdl-data-table__cell--non-numeric">
-          {this.props.product.tax} %
+          {this.props.product.tax}%
           {/* <input
             className="mdl-textfield__input "
             type="number"
@@ -41,7 +41,7 @@ export class ProductRow extends Component {
           /> */}
         </td>
         <td className="mdl-data-table__cell--non-numeric">
-          {this.props.product.amount}
+          ₹{this.props.product.amount}
           {/* <input
             className="mdl-textfield__input "
             type="number"

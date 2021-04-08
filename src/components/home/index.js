@@ -82,8 +82,8 @@ export class Home extends Component {
               <th style={{ textAlign: "left" }}>Quantity</th>
               <th style={{ textAlign: "left" }}>Unit price</th>
               <th style={{ textAlign: "left" }}>TAX</th>
-              <th style={{ textAlign: "left" }}>Amount </th>
-              <th style={{ textAlign: "center" }}>Remove </th>
+              <th style={{ textAlign: "left" }}>Amount</th>
+              <th style={{ textAlign: "center" }}>Remove</th>
             </tr>
           </thead>
           <tbody>

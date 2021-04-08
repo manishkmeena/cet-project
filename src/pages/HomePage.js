@@ -27,7 +27,7 @@ export class HomePage extends Component {
                 onClick={() => this.props.history.push("/")}
                 style={{ cursor: "pointer" }}
               >
-                mybillbook.online
+                Apna Bill
               </span>
 
               <div className="mdl-layout-spacer" />
@@ -36,7 +36,7 @@ export class HomePage extends Component {
             </div>
           </header>
           <div className="mdl-layout__drawer">
-            <span className="mdl-layout-title">mybillbook.online</span>
+            <span className="mdl-layout-title">Apna Bill</span>
             <NavBar visible={false} />
           </div>
           <main className="mdl-layout__content" style={{ padding: 20 }}>
