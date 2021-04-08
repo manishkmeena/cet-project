@@ -4,6 +4,7 @@ import "./App.css";
 import { Provider as AlertProvider } from "react-alert";
 import AlertTemplate from "react-alert-template-basic";
 import HomePage from "./pages/HomePage";
+import Payment from './components/payment'
 import InvoiceByID from "./components/invoice/InvoiceByID";
 
 const options = {
@@ -21,6 +22,7 @@ class App extends Component {
           <Route exact path="/" component={HomePage} />
           <Route exact path="/setting" component={HomePage} />
           <Route exact path="/myinvoice" component={HomePage} />
+          <Route exact path="/payment" component={Payment} />
           <Route exact path="/myinvoice/:id" component={InvoiceByID} />
           <Route component={NoMatch} />
         </Switch>

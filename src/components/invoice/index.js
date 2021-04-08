@@ -2,22 +2,23 @@ import React, { Component } from "react";
 import "./invoice.css";
 import { withRouter } from "react-router-dom";
 import InvoicePattern from "../home/Print";
+import { getLocalInvoices, makeInvoice } from "../../utils";
 export class Invoice extends Component {
   state = {
     invoice: []
   };
   componentDidMount = () => {
-    const invoice = JSON.parse(localStorage.getItem("myInvoice"));
-    if (invoice === null) {
-      this.setState({ invoice: [] });
-    } else {
-      this.setState({ invoice });
-    }
+    const invoice = makeInvoice()
+    this.setState({ 
+      invoice: getLocalInvoices()
+     })
+
+    if (invoice) this.createPDF(invoice)
   };
 
   removeProduct = id => {
     const invoice = this.state.invoice;
-    const localinvoice = JSON.parse(localStorage.getItem("myInvoice"));
+    const localinvoice = getLocalInvoices();
     const removedInvoice = invoice.filter(inv => {
       return inv.invoiceId !== id;
     });
@@ -37,6 +38,7 @@ export class Invoice extends Component {
         (total, inv) => parseFloat(total) + parseFloat(inv.total),
         0
       );
+      totalAmount = totalAmount.toFixed(2)
     }
     return (
       <div>

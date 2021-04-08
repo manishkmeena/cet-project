@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import "./home.css";
-import uuid from "uuid-v4";
 import ProductRow from "./ProductRow";
 import FirstRow from "./FirstRow";
 import SecondRow from "./SecondRow";
@@ -9,63 +8,48 @@ import AddProduct from "./AddProduct";
 import ThirdRow from "./ThirdRow";
 import FourthRow from "./FourthRow";
 import { withAlert } from "react-alert";
-import InvoicePattern from "./Print";
+import { calculateTotalPrice, clearAllProducts, getLocalProducts, getLocalStorageKey } from "../../utils";
+
 export class Home extends Component {
   state = {
     isModalOpen: false,
-    products: [],
-    shopName:
-      localStorage.getItem("shopName") === null
-        ? ""
-        : localStorage.getItem("shopName"),
-    invoiceNumber:
-      localStorage.getItem("invoiceNumber") === null
-        ? "00001"
-        : localStorage.getItem("invoiceNumber"),
-    personName: "",
-    personDetail: "",
-    GSTNumber:
-      localStorage.getItem("GSTNumber") === null
-        ? ""
-        : localStorage.getItem("GSTNumber")
-  };
-
-  componentDidMount = () => {
-    const products = JSON.parse(localStorage.getItem("myProducts"));
-    if (products === null) {
-      return;
-    }
-    if (products.length === 0) {
-      // do nothing
-    } else {
-      this.setState({ products });
-    }
+    products: getLocalProducts(),
+    shopName: getLocalStorageKey("shopName"),
+    invoiceNumber: getLocalStorageKey("invoiceNumber"),
+    personName: getLocalStorageKey("personName"),
+    personDetail: getLocalStorageKey("personDetail"),
+    GSTNumber: getLocalStorageKey("GSTNumber"),
   };
 
   render() {
     let total = 0;
-    if (this.state.products.length !== 0) {
-      total = this.state.products.reduce((sum, product) => {
-        let totalSum = parseFloat(sum) + parseFloat(product.amount);
-        return totalSum.toFixed(2);
-      }, 0);
+    const { 
+      shopName,
+      products,
+      invoiceNumber,
+      personName,
+      GSTNumber,
+    } = this.state
+
+    if (products.length !== 0) {
+      total = calculateTotalPrice(products)
     }
 
     return (
       <div>
         <FirstRow
           changeUserInput={this.changeUserInput}
-          shopName={this.state.shopName}
-          invoiceNumber={this.state.invoiceNumber}
+          shopName={shopName}
+          invoiceNumber={invoiceNumber}
         />
         <SecondRow
           changeUserInput={this.changeUserInput}
-          personName={this.state.personName}
+          personName={personName}
           personDetail={this.state.personDetail}
         />
         <ThirdRow
           clearAll={this.clearAll}
-          GSTNumber={this.state.GSTNumber}
+          GSTNumber={GSTNumber}
           changeUserInput={this.changeUserInput}
           total={total}
         />
@@ -87,7 +71,7 @@ export class Home extends Component {
             </tr>
           </thead>
           <tbody>
-            {this.state.products.map((product, i) => {
+            {products.map((product, i) => {
               return (
                 <ProductRow
                   key={i}
@@ -99,7 +83,7 @@ export class Home extends Component {
           </tbody>
         </table>
 
-        <FourthRow makeInvoice={this.makeInvoice} total={total} />
+        <FourthRow total={total} shopName={shopName} validate={this.validate} />
 
         <button
           onClick={() => this.openModal()}
@@ -128,103 +112,29 @@ export class Home extends Component {
     );
   }
 
-  makeInvoice = total => {
-    let myInvoice = JSON.parse(localStorage.getItem("myInvoice"));
-    let shopAddress = localStorage.getItem("shopAddress");
-    let shopContact = localStorage.getItem("shopContact");
-    let shopName = this.state.shopName.trim();
-    let invoiceNumber = this.state.invoiceNumber.trim();
-    let personName = this.state.personName.trim();
-    let personDetail = this.state.personDetail.trim();
-    let GSTNumber = this.state.GSTNumber.trim();
-    let products = this.state.products;
-    let invoiceId = uuid();
-    let createdAt = new Date();
+  validate = () => {
+    const shopName = this.state.shopName.trim();
+    const personName = this.state.personName.trim();
+    const invoiceNumber = this.state.invoiceNumber.trim();
+    const products = this.state.products;
 
-    if (shopName === "") {
-      this.props.alert.show("Enter Shop Name", {
-        timeout: 2000,
-        type: "INFO"
-      });
-      return;
-    }
-    if (personName === "") {
-      this.props.alert.show("Enter Customer Name", {
-        timeout: 2000,
-        type: "INFO"
-      });
-      return;
-    }
-    if (invoiceNumber === "") {
+    let message = ''
+
+    if (shopName === "") message = "Enter Shop Name"
+    if (personName === "") message = "Enter Customer Name"
+    if (invoiceNumber === "") message = "Enter Invoice Number"
+    if (products.length === 0)message = "Enter Some Products"
+
+    if (message) {
       this.props.alert.show("Enter Invoice Number", {
         timeout: 2000,
         type: "INFO"
-      });
-      return;
+      })
+      return false
     }
 
-    if (products.length === 0) {
-      this.props.alert.show("Enter Some Products", {
-        timeout: 2000,
-        type: "INFO"
-      });
-      return;
-    }
-
-    const invoice = {
-      invoiceId,
-      shopName,
-      invoiceNumber,
-      personName,
-      personDetail,
-      GSTNumber,
-      products,
-      shopAddress,
-      shopContact,
-      createdAt,
-      total
-    };
-
-    if (myInvoice === null || myInvoice.length === 0) {
-      const newInvoice = [];
-      newInvoice.push(invoice);
-      localStorage.setItem("myInvoice", JSON.stringify(newInvoice));
-      this.props.alert.show("Invoice Created", {
-        timeout: 2000,
-        type: "SUCCESS"
-      });
-      var pri = document.getElementById("myiframe").contentWindow;
-      pri.document.write(InvoicePattern(invoice));
-      pri.document.close();
-      pri.print();
-      pri.focus();
-      this.clearAll();
-    } else {
-      const foundInvoices = myInvoice.find(
-        inv => inv.invoiceNumber === invoiceNumber
-      );
-      if (foundInvoices === undefined) {
-        myInvoice.push(invoice);
-        localStorage.setItem("myInvoice", JSON.stringify(myInvoice));
-        this.props.alert.show("Invoice Created", {
-          timeout: 2000,
-          type: "SUCCESS"
-        });
-
-        var pri = document.getElementById("myiframe").contentWindow;
-        pri.document.write(InvoicePattern(invoice));
-        pri.document.close();
-        pri.print();
-        pri.focus();
-        this.clearAll();
-      } else {
-        this.props.alert.show("Invoice Number Exist", {
-          timeout: 2000,
-          type: "INFO"
-        });
-      }
-    }
-  };
+    return true
+  }
 
   addProduct = product => {
     const products = this.state.products;
@@ -248,7 +158,7 @@ export class Home extends Component {
   };
 
   clearAll = () => {
-    localStorage.setItem("myProducts", JSON.stringify([]));
+    clearAllProducts()
     this.setState({ products: [] });
   };
 
@@ -257,15 +167,7 @@ export class Home extends Component {
   closeModal = () => this.setState({ isModalOpen: false });
 
   changeUserInput = (text, state) => {
-    if (state === "shopName") {
-      localStorage.setItem("shopName", text);
-    }
-    if (state === "invoiceNumber") {
-      localStorage.setItem("invoiceNumber", text);
-    }
-    if (state === "GSTNumber") {
-      localStorage.setItem("GSTNumber", text);
-    }
+    localStorage.setItem(state, text)
     this.setState({ [state]: text });
   };
 }
